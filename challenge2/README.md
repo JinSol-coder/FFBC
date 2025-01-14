@@ -1,16 +1,24 @@
-# challenge2
+# Thread Clone App
 
-A new Flutter project.
+쓰레드 스타일의 SNS 앱 UI 구현 프로젝트
 
-## Getting Started
+## 기능
 
-This project is a starting point for a Flutter application.
+- 홈 피드 (무한 스크롤)
+- 검색
+- 포스팅 (이미지 업로드)
+- 활동 알림
+- 프로필
 
-A few resources to get you started if this is your first Flutter project:
+## 기술 스택
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+- Flutter 3.13.0+
+- Provider (상태 관리)
+- Go Router (라우팅)
+- 기타 라이브러리
+  - cached_network_image
+  - image_picker
+  - google_fonts
+  - intl
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## 프로젝트 구조
