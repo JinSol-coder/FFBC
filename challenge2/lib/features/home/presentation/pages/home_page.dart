@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../providers/home_provider.dart';
 import '../widgets/post_card.dart';
+import '../widgets/post_skeleton.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -36,34 +37,51 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  Future<void> _onRefresh() async {
+    await context.read<HomeProvider>().refresh();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('홈'),
+        title: const Text('쓰레드'),
+        centerTitle: true,
         backgroundColor: Theme.of(context).colorScheme.background,
       ),
       body: Consumer<HomeProvider>(
         builder: (context, provider, child) {
           if (provider.isLoading && provider.posts.isEmpty) {
-            return const Center(child: CircularProgressIndicator());
+            return ListView.builder(
+              itemCount: 5,
+              itemBuilder: (context, index) => const PostSkeleton(),
+            );
           }
 
-          return ListView.builder(
-            controller: _scrollController,
-            itemCount: provider.posts.length + (provider.hasMore ? 1 : 0),
-            itemBuilder: (context, index) {
-              if (index == provider.posts.length) {
-                return const Center(
-                  child: Padding(
-                    padding: EdgeInsets.all(16.0),
-                    child: CircularProgressIndicator(),
-                  ),
-                );
-              }
+          return RefreshIndicator(
+            onRefresh: _onRefresh,
+            color: Theme.of(context).colorScheme.primary,
+            backgroundColor: Theme.of(context).colorScheme.surface,
+            child: ListView.builder(
+              controller: _scrollController,
+              itemCount: provider.posts.length + (provider.hasMore ? 1 : 0),
+              itemBuilder: (context, index) {
+                if (index == provider.posts.length) {
+                  return const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(16.0),
+                      child: CircularProgressIndicator(),
+                    ),
+                  );
+                }
 
-              return PostCard(post: provider.posts[index]);
-            },
+                if (provider.isRefreshing && index < 5) {
+                  return const PostSkeleton();
+                }
+
+                return PostCard(post: provider.posts[index]);
+              },
+            ),
           );
         },
       ),
