@@ -36,8 +36,10 @@ class MockDataService {
         createdAt: DateTime.now().subtract(Duration(hours: index)),
         likesCount: index * 10,
         repliesCount: index * 5,
-        images: index % 2 == 0 ? ['https://picsum.photos/500/300?random=$index'] : null,
+        images: index % 2 == 0
+            ? ['https://picsum.photos/500/300?random=$index']
+            : null,
       ),
     );
   }
-} 
+}

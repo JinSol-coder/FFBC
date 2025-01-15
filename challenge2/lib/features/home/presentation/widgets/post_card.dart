@@ -1,7 +1,8 @@
-import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import '../../data/models/post_model.dart';
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+
+import '../../data/models/post_model.dart';
 
 class PostCard extends StatelessWidget {
   final PostModel post;
@@ -173,4 +174,4 @@ class PostCard extends StatelessWidget {
       return 'now';
     }
   }
-} 
+}

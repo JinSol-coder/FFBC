@@ -77,4 +77,4 @@ class _ActivityPageContentState extends State<ActivityPageContent> {
       ),
     );
   }
-} 
+}

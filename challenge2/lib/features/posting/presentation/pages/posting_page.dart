@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../providers/posting_provider.dart';
 import '../widgets/image_picker_widget.dart';
 
@@ -74,10 +75,11 @@ class PostingPageContent extends StatelessWidget {
     );
   }
 
-  Future<void> _handlePost(BuildContext context, PostingProvider provider) async {
+  Future<void> _handlePost(
+      BuildContext context, PostingProvider provider) async {
     await provider.createPost();
     if (context.mounted) {
       Navigator.pop(context);
     }
   }
-} 
+}

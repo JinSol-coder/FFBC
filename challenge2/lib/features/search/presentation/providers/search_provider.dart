@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../data/models/search_result_model.dart';
+
 import '../../../home/data/models/user_model.dart';
 
 class SearchProvider extends ChangeNotifier {
@@ -15,7 +15,7 @@ class SearchProvider extends ChangeNotifier {
 
   Future<void> search(String query) async {
     if (_query == query) return;
-    
+
     _query = query;
     _isLoading = true;
     notifyListeners();
@@ -61,7 +61,8 @@ class SearchProvider extends ChangeNotifier {
         id: 'user_${_searchResults.length + index}',
         username: 'user${_searchResults.length + index}',
         displayName: '사용자 ${_searchResults.length + index}',
-        profileImage: 'https://picsum.photos/200?random=${_searchResults.length + index}',
+        profileImage:
+            'https://picsum.photos/200?random=${_searchResults.length + index}',
         isVerified: index % 5 == 0,
       ),
     );
@@ -71,4 +72,4 @@ class SearchProvider extends ChangeNotifier {
     _isLoading = false;
     notifyListeners();
   }
-} 
+}

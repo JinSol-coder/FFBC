@@ -57,4 +57,4 @@ class AppTheme {
   static TextTheme _buildTextTheme(TextTheme base) {
     return GoogleFonts.interTextTheme(base);
   }
-} 
+}

@@ -21,4 +21,4 @@ class PerformanceMonitor {
       _timers.remove(key);
     }
   }
-} 
+}

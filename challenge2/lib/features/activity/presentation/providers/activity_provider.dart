@@ -76,4 +76,4 @@ class ActivityProvider extends ChangeNotifier {
     _isLoading = false;
     notifyListeners();
   }
-} 
+}

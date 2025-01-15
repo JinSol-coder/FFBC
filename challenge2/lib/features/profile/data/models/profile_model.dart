@@ -18,4 +18,4 @@ class ProfileModel {
     this.isFollowing = false,
     this.isCurrentUser = false,
   });
-} 
+}

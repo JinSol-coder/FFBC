@@ -108,4 +108,4 @@ class ActivityItem extends StatelessWidget {
       return '방금 전';
     }
   }
-} 
+}

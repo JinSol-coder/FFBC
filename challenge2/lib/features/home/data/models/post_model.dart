@@ -20,4 +20,4 @@ class PostModel {
     this.repliesCount = 0,
     this.isLiked = false,
   });
-} 
+}

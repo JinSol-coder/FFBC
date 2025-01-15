@@ -1,7 +1,9 @@
 import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+
 import '../providers/posting_provider.dart';
 
 class ImagePickerWidget extends StatelessWidget {
@@ -79,7 +81,9 @@ class ImagePickerWidget extends StatelessWidget {
                 title: const Text('갤러리에서 선택'),
                 onTap: () {
                   Navigator.pop(context);
-                  context.read<PostingProvider>().pickImage(ImageSource.gallery);
+                  context
+                      .read<PostingProvider>()
+                      .pickImage(ImageSource.gallery);
                 },
               ),
             ],
@@ -88,4 +92,4 @@ class ImagePickerWidget extends StatelessWidget {
       },
     );
   }
-} 
+}

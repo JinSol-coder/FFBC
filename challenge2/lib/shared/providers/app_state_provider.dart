@@ -11,4 +11,4 @@ class AppStateProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
-} 
+}

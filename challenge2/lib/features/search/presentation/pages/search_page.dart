@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../providers/search_provider.dart';
 import '../widgets/search_result_item.dart';
 
@@ -65,7 +66,8 @@ class _SearchPageContentState extends State<SearchPageContent> {
 
           return ListView.builder(
             controller: _scrollController,
-            itemCount: provider.searchResults.length + (provider.hasMore ? 1 : 0),
+            itemCount:
+                provider.searchResults.length + (provider.hasMore ? 1 : 0),
             itemBuilder: (context, index) {
               if (index == provider.searchResults.length) {
                 return const Center(
@@ -96,4 +98,4 @@ class _SearchPageContentState extends State<SearchPageContent> {
       },
     );
   }
-} 
+}
