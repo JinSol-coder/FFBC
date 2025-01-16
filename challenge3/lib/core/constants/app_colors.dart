@@ -1,8 +1,9 @@
 import 'package:flutter/cupertino.dart';
 
 class AppColors {
+  static const background = CupertinoColors.black;
   static const primary = CupertinoColors.systemBlue;
   static const secondary = CupertinoColors.systemGrey;
-  static const background = CupertinoColors.systemBackground;
-  static const text = CupertinoColors.label;
+  static const text = CupertinoColors.white;
+  static const subtext = CupertinoColors.systemGrey;
 } 

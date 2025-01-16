@@ -5,13 +5,22 @@ class ExploreView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const CupertinoPageScaffold(
+    return CupertinoPageScaffold(
+      backgroundColor: CupertinoColors.black,
       navigationBar: CupertinoNavigationBar(
-        middle: Text('둘러보기'),
+        backgroundColor: CupertinoColors.black,
+        border: null,
+        middle: const Text(
+          '둘러보기',
+          style: TextStyle(color: CupertinoColors.white),
+        ),
       ),
-      child: SafeArea(
+      child: const SafeArea(
         child: Center(
-          child: Text('둘러보기 화면'),
+          child: Text(
+            '둘러보기 페이지',
+            style: TextStyle(color: CupertinoColors.white),
+          ),
         ),
       ),
     );

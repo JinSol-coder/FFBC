@@ -1,10 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import '../../models/playlist.dart';
+import '../../models/track.dart';
 import '../../viewmodels/player_viewmodel.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_typography.dart';
-import 'widgets/track_list_tile.dart';
+import '../player/player_view.dart';
 
 class PlaylistDetailView extends StatelessWidget {
   final Playlist playlist;
@@ -17,77 +18,81 @@ class PlaylistDetailView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
-      backgroundColor: AppColors.background,
-      navigationBar: const CupertinoNavigationBar(
-        backgroundColor: AppColors.background,
-        middle: Text('플레이리스트'),
+      backgroundColor: CupertinoColors.black,
+      navigationBar: CupertinoNavigationBar(
+        backgroundColor: CupertinoColors.black,
+        border: null,
+        leading: CupertinoButton(
+          padding: EdgeInsets.zero,
+          child: const Icon(CupertinoIcons.back, color: CupertinoColors.white),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
       ),
       child: SafeArea(
         child: CustomScrollView(
           slivers: [
-            // 헤더 섹션
+            // 플레이리스트 헤더
             SliverToBoxAdapter(
               child: Container(
                 padding: const EdgeInsets.all(16),
-                child: Column(
+                child: Row(
                   children: [
-                    // 플레이리스트 표지
+                    // 플레이리스트 썸네일
                     Container(
-                      width: 200,
-                      height: 200,
+                      width: 120,
+                      height: 120,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(8),
-                        boxShadow: [
-                          BoxShadow(
-                            color: CupertinoColors.black.withOpacity(0.1),
-                            blurRadius: 20,
-                            offset: const Offset(0, 10),
-                          ),
-                        ],
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: Image.network(
-                          playlist.thumbnailUrl,
+                        image: DecorationImage(
+                          image: NetworkImage(playlist.thumbnailUrl),
                           fit: BoxFit.cover,
                         ),
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(width: 16),
                     // 플레이리스트 정보
-                    Text(
-                      playlist.title,
-                      style: AppTypography.title,
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      playlist.description,
-                      style: AppTypography.body.copyWith(
-                        color: AppColors.secondary,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 16),
-                    // 전체 재생 버튼
-                    CupertinoButton.filled(
-                      child: const Row(
-                        mainAxisSize: MainAxisSize.min,
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Icon(CupertinoIcons.play_fill),
-                          SizedBox(width: 8),
-                          Text('전체 재생'),
+                          Text(
+                            playlist.title,
+                            style: AppTypography.title,
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            '${playlist.tracks.length}곡',
+                            style: AppTypography.body.copyWith(
+                              color: AppColors.subtext,
+                            ),
+                          ),
                         ],
                       ),
-                      onPressed: () {
-                        if (playlist.tracks.isNotEmpty) {
-                          final playerViewModel = context.read<PlayerViewModel>();
-                          playerViewModel.setTrack(playlist.tracks.first);
-                          // TODO: 나머지 트랙들을 재생 큐에 추가
-                        }
-                      },
                     ),
                   ],
+                ),
+              ),
+            ),
+            // 전체 재생 버튼
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: CupertinoButton.filled(
+                  onPressed: () {
+                    if (playlist.tracks.isNotEmpty) {
+                      context.read<PlayerViewModel>().setTrack(
+                        playlist.tracks.first,
+                        playlist.tracks,
+                      );
+                      Navigator.of(context).push(
+                        CupertinoPageRoute(
+                          fullscreenDialog: true,
+                          builder: (context) => const PlayerView(),
+                        ),
+                      );
+                    }
+                  },
+                  child: const Text('전체 재생'),
                 ),
               ),
             ),
@@ -96,15 +101,94 @@ class PlaylistDetailView extends StatelessWidget {
               delegate: SliverChildBuilderDelegate(
                 (context, index) {
                   final track = playlist.tracks[index];
-                  return TrackListTile(
+                  return _TrackListTile(
                     track: track,
-                    onTap: () {
-                      final playerViewModel = context.read<PlayerViewModel>();
-                      playerViewModel.setTrack(track);
-                    },
+                    playlist: playlist.tracks,
                   );
                 },
                 childCount: playlist.tracks.length,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _TrackListTile extends StatelessWidget {
+  final Track track;
+  final List<Track> playlist;
+
+  const _TrackListTile({
+    required this.track,
+    required this.playlist,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return CupertinoButton(
+      padding: EdgeInsets.zero,
+      onPressed: () {
+        context.read<PlayerViewModel>().setTrack(track, playlist);
+        Navigator.of(context).push(
+          CupertinoPageRoute(
+            fullscreenDialog: true,
+            builder: (context) => const PlayerView(),
+          ),
+        );
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        child: Row(
+          children: [
+            // 트랙 썸네일
+            Container(
+              width: 56,
+              height: 56,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(4),
+                image: DecorationImage(
+                  image: NetworkImage(track.thumbnailUrl),
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            // 트랙 정보
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    track.title,
+                    style: AppTypography.subtitle.copyWith(
+                      color: CupertinoColors.white,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    track.artist,
+                    style: AppTypography.body.copyWith(
+                      color: AppColors.subtext,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+            // 더보기 버튼
+            CupertinoButton(
+              padding: const EdgeInsets.all(12),
+              onPressed: () {
+                // TODO: 트랙 메뉴 표시
+              },
+              child: const Icon(
+                CupertinoIcons.ellipsis_vertical,
+                color: CupertinoColors.white,
               ),
             ),
           ],
