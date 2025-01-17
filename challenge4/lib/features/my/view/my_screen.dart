@@ -1,48 +1,63 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../viewmodel/my_viewmodel.dart';
+import '../../../core/theme/theme_provider.dart';
 
 class MyScreen extends StatelessWidget {
   const MyScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('MY'),
-      ),
-      body: Consumer<MyViewModel>(
-        builder: (context, viewModel, child) {
-          return ListView(
-            children: [
-              // 프로필 섹션
-              _buildProfileSection(context, viewModel),
-              const Divider(),
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    
+    return Theme(
+      data: themeProvider.theme,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(
+            'MY',
+            style: TextStyle(
+              color: themeProvider.isDarkMode ? Colors.amber : Colors.blue,
+            ),
+          ),
+        ),
+        body: Consumer<MyViewModel>(
+          builder: (context, viewModel, child) {
+            return ListView(
+              children: [
+                // 프로필 섹션
+                _buildProfileSection(context, viewModel),
+                const Divider(),
 
-              // 알림 설정 섹션
-              _buildNotificationSection(context, viewModel),
-              const Divider(),
+                // 알림 설정 섹션
+                _buildNotificationSection(context, viewModel),
+                const Divider(),
 
-              // 앱 설정 섹션
-              _buildAppSettingsSection(context, viewModel),
-            ],
-          );
-        },
+                // 앱 설정 섹션
+                _buildAppSettingsSection(context, viewModel, themeProvider),
+              ],
+            );
+          },
+        ),
       ),
     );
   }
 
   Widget _buildProfileSection(BuildContext context, MyViewModel viewModel) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final titleColor = themeProvider.isDarkMode ? Colors.amber : Colors.blue;
+
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             '프로필',
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
+              color: titleColor,
             ),
           ),
           const SizedBox(height: 16),
@@ -67,16 +82,20 @@ class MyScreen extends StatelessWidget {
   }
 
   Widget _buildNotificationSection(BuildContext context, MyViewModel viewModel) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final titleColor = themeProvider.isDarkMode ? Colors.amber : Colors.blue;
+
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             '알림 설정',
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
+              color: titleColor,
             ),
           ),
           const SizedBox(height: 16),
@@ -97,31 +116,31 @@ class MyScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildAppSettingsSection(BuildContext context, MyViewModel viewModel) {
+  Widget _buildAppSettingsSection(
+    BuildContext context, 
+    MyViewModel viewModel,
+    ThemeProvider themeProvider,
+  ) {
+    final titleColor = themeProvider.isDarkMode ? Colors.amber : Colors.blue;
+
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             '앱 설정',
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
+              color: titleColor,
             ),
           ),
           const SizedBox(height: 16),
-          ListTile(
-            title: const Text('테마'),
-            subtitle: Text(viewModel.profile.theme),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => _showThemeDialog(context, viewModel),
-          ),
-          ListTile(
-            title: const Text('언어'),
-            subtitle: Text(viewModel.profile.language),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => _showLanguageDialog(context, viewModel),
+          SwitchListTile(
+            title: const Text('다크 모드'),
+            value: themeProvider.isDarkMode,
+            onChanged: (_) => themeProvider.toggleTheme(),
           ),
           ListTile(
             title: const Text('앱 정보'),
@@ -158,63 +177,6 @@ class MyScreen extends StatelessWidget {
               Navigator.pop(context);
             },
             child: const Text('저장'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showThemeDialog(BuildContext context, MyViewModel viewModel) {
-    showDialog(
-      context: context,
-      builder: (context) => SimpleDialog(
-        title: const Text('테마 설정'),
-        children: [
-          SimpleDialogOption(
-            onPressed: () {
-              viewModel.updateTheme('system');
-              Navigator.pop(context);
-            },
-            child: const Text('시스템'),
-          ),
-          SimpleDialogOption(
-            onPressed: () {
-              viewModel.updateTheme('light');
-              Navigator.pop(context);
-            },
-            child: const Text('라이트'),
-          ),
-          SimpleDialogOption(
-            onPressed: () {
-              viewModel.updateTheme('dark');
-              Navigator.pop(context);
-            },
-            child: const Text('다크'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showLanguageDialog(BuildContext context, MyViewModel viewModel) {
-    showDialog(
-      context: context,
-      builder: (context) => SimpleDialog(
-        title: const Text('언어 설정'),
-        children: [
-          SimpleDialogOption(
-            onPressed: () {
-              viewModel.updateLanguage('ko');
-              Navigator.pop(context);
-            },
-            child: const Text('한국어'),
-          ),
-          SimpleDialogOption(
-            onPressed: () {
-              viewModel.updateLanguage('en');
-              Navigator.pop(context);
-            },
-            child: const Text('English'),
           ),
         ],
       ),

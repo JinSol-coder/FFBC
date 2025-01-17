@@ -1,74 +1,102 @@
 import 'package:flutter/foundation.dart';
-import '../model/search_history_model.dart';
-import '../../../data/api/unsplash_api.dart';
-import '../../home/model/news_model.dart';
+import '../model/search_result_model.dart';
+import '../../../data/datasources/dummy_data_source.dart';
 
 class SearchViewModel extends ChangeNotifier {
-  final UnsplashApi _api;
-  List<NewsModel> _searchResults = [];
-  List<SearchHistoryModel> _searchHistory = [];
   bool _isLoading = false;
-  bool _hasMore = true;
-  int _currentPage = 1;
-  String _currentQuery = '';
+  String _query = '';
+  SearchResults? _results;
 
-  SearchViewModel({UnsplashApi? api}) : _api = api ?? UnsplashApi();
-
-  List<NewsModel> get searchResults => _searchResults;
-  List<SearchHistoryModel> get searchHistory => _searchHistory;
   bool get isLoading => _isLoading;
-  bool get hasMore => _hasMore;
+  String get query => _query;
+  SearchResults? get results => _results;
 
-  Future<void> search(String query, {bool refresh = false}) async {
-    if (_isLoading) return;
-    if (refresh || query != _currentQuery) {
-      _currentPage = 1;
-      _searchResults.clear();
-      _hasMore = true;
-      _currentQuery = query;
-      
-      // 검색 기록 추가
-      _addToHistory(query);
+  Future<void> search(String query) async {
+    _query = query;
+    if (query.isEmpty) {
+      _results = null;
+      notifyListeners();
+      return;
     }
-    
-    if (!_hasMore) return;
 
     _isLoading = true;
     notifyListeners();
 
     try {
-      final response = await _api.searchPhotos(query, page: _currentPage);
-      final newItems = response.map((item) => NewsModel.fromJson(item)).toList();
-      
-      if (newItems.isEmpty) {
-        _hasMore = false;
-      } else {
-        _searchResults.addAll(newItems);
-        _currentPage++;
+      // 모든 데이터를 가져와서 검색어로 필터링
+      final newsData = DummyDataSource.getNewsContents();
+      final recommendData = DummyDataSource.getRecommendations();
+      final marketData = DummyDataSource.getHomeContents();
+
+      final news = <SearchResultItem>[];
+      final recommendations = <SearchResultItem>[];
+      final market = <SearchResultItem>[];
+
+      // 뉴스 검색
+      for (var category in newsData) {
+        for (var item in category['items']) {
+          if (_matchesSearch(item['title'], query) || 
+              _matchesSearch(item['description'], query)) {
+            news.add(SearchResultItem(
+              id: item['id'],
+              title: item['title'],
+              description: item['description'],
+              imageUrl: item['imageUrl'],
+              category: category['category'],
+              section: '뉴스',
+            ));
+          }
+        }
       }
+
+      // 추천 검색
+      for (var category in recommendData) {
+        for (var item in category['items']) {
+          if (_matchesSearch(item['title'], query) || 
+              _matchesSearch(item['description'], query)) {
+            recommendations.add(SearchResultItem(
+              id: item['id'],
+              title: item['title'],
+              description: item['description'],
+              imageUrl: item['imageUrl'],
+              category: category['category'],
+              section: '추천',
+            ));
+          }
+        }
+      }
+
+      // 시장 데이터 검색
+      for (var category in marketData) {
+        for (var item in category['items']) {
+          if (_matchesSearch(item['title'], query) || 
+              _matchesSearch(item['description'], query)) {
+            market.add(SearchResultItem(
+              id: item['id'],
+              title: item['title'],
+              description: item['description'],
+              imageUrl: item['imageUrl'],
+              category: category['category'],
+              section: '시장',
+            ));
+          }
+        }
+      }
+
+      _results = SearchResults(
+        news: news,
+        recommendations: recommendations,
+        market: market,
+      );
     } catch (e) {
-      print('Error searching photos: $e');
+      print('Error searching: $e');
     } finally {
       _isLoading = false;
       notifyListeners();
     }
   }
 
-  void _addToHistory(String query) {
-    final history = SearchHistoryModel(
-      query: query,
-      timestamp: DateTime.now(),
-    );
-    
-    _searchHistory.insert(0, history);
-    if (_searchHistory.length > 10) {
-      _searchHistory.removeLast();
-    }
-    notifyListeners();
-  }
-
-  void clearHistory() {
-    _searchHistory.clear();
-    notifyListeners();
+  bool _matchesSearch(String text, String query) {
+    return text.toLowerCase().contains(query.toLowerCase());
   }
 } 

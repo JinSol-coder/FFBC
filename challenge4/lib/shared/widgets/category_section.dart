@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../features/home/model/content_model.dart';
+import '../../features/home/view/more_content_screen.dart';
+import '../widgets/crypto_price_painter.dart';
 
 class CategorySection extends StatelessWidget {
   final ContentCategory category;
@@ -133,65 +135,33 @@ class CategorySection extends StatelessWidget {
   }
 
   Widget _buildCryptoSection(BuildContext context) {
-    // 비트코인 섹션은 그래프와 함께 표시
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionHeader(context),
+        _buildSectionHeader(context, showMore: false),
         Container(
           height: 200,
-          margin: const EdgeInsets.all(8),
-          child: Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Bitcoin (BTC)',
-                            style: Theme.of(context).textTheme.titleMedium,
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            '\$45,123.45',
-                            style: Theme.of(context).textTheme.headlineSmall,
-                          ),
-                        ],
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.green.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Text(
-                          '+2.5%',
-                          style: TextStyle(
-                            color: Colors.green[700],
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const Expanded(
-                    child: Center(
-                      child: Text('그래프가 들어갈 자리'),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+          width: double.infinity,
+          child: CustomPaint(
+            painter: CryptoPricePainter(),
           ),
+        ),
+        ListView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: category.items.length,
+          itemBuilder: (context, index) {
+            final item = category.items[index];
+            return ListTile(
+              title: Text(item.title),
+              trailing: Text(
+                item.description,
+                style: TextStyle(
+                  color: item.description.contains('+') ? Colors.red : Colors.blue,
+                ),
+              ),
+            );
+          },
         ),
       ],
     );
@@ -239,7 +209,7 @@ class CategorySection extends StatelessWidget {
     );
   }
 
-  Widget _buildSectionHeader(BuildContext context) {
+  Widget _buildSectionHeader(BuildContext context, {bool showMore = true}) {
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Row(
@@ -249,12 +219,21 @@ class CategorySection extends StatelessWidget {
             category.title,
             style: Theme.of(context).textTheme.titleLarge,
           ),
-          TextButton(
-            onPressed: () {
-              // TODO: 더보기 기능 구현
-            },
-            child: const Text('더보기'),
-          ),
+          if (showMore && category.title != '비트코인')
+            TextButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => MoreContentScreen(
+                      categoryTitle: category.title,
+                      items: category.items,
+                    ),
+                  ),
+                );
+              },
+              child: const Text('더보기'),
+            ),
         ],
       ),
     );

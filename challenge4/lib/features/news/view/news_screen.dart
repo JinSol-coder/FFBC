@@ -11,6 +11,8 @@ class NewsScreen extends StatefulWidget {
 }
 
 class _NewsScreenState extends State<NewsScreen> {
+  String _selectedCategory = '전체';
+
   @override
   void initState() {
     super.initState();
@@ -31,12 +33,49 @@ class _NewsScreenState extends State<NewsScreen> {
             return const Center(child: CircularProgressIndicator());
           }
 
-          return ListView.builder(
-            itemCount: viewModel.categories.length,
-            itemBuilder: (context, index) {
-              final category = viewModel.categories[index];
-              return _buildNewsCategory(category);
-            },
+          final categories = ['전체', ...viewModel.categories.map((c) => c.title)];
+
+          return Column(
+            children: [
+              // 카테고리 필터
+              SizedBox(
+                height: 50,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: categories.length,
+                  itemBuilder: (context, index) {
+                    final category = categories[index];
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      child: FilterChip(
+                        selected: _selectedCategory == category,
+                        label: Text(category),
+                        onSelected: (selected) {
+                          setState(() {
+                            _selectedCategory = category;
+                          });
+                        },
+                      ),
+                    );
+                  },
+                ),
+              ),
+
+              // 뉴스 목록
+              Expanded(
+                child: ListView.builder(
+                  itemCount: viewModel.categories.length,
+                  itemBuilder: (context, index) {
+                    final category = viewModel.categories[index];
+                    if (_selectedCategory != '전체' && 
+                        category.title != _selectedCategory) {
+                      return const SizedBox.shrink();
+                    }
+                    return _buildNewsCategory(category);
+                  },
+                ),
+              ),
+            ],
           );
         },
       ),
@@ -47,13 +86,14 @@ class _NewsScreenState extends State<NewsScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
-          padding: const EdgeInsets.all(16),
-          child: Text(
-            category.title,
-            style: Theme.of(context).textTheme.titleLarge,
+        if (_selectedCategory == '전체')
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Text(
+              category.title,
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
           ),
-        ),
         ListView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),

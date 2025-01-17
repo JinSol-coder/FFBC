@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 class DummyDataSource {
   static List<Map<String, dynamic>> getHomeContents() {
     return [
@@ -132,57 +134,137 @@ class DummyDataSource {
           },
         ],
       },
+      {
+        'category': '이슈',
+        'items': [
+          {
+            'id': 'issue1',
+            'title': '글로벌 테크 기업들의 AI 개발 경쟁 심화',
+            'imageUrl': 'https://picsum.photos/800/400?random=21',
+            'description': '주요 테크 기업들의 AI 기술 개발 경쟁이 가속화되고 있어...',
+          },
+          {
+            'id': 'issue2',
+            'title': '가상화폐 시장 변동성 확대',
+            'imageUrl': 'https://picsum.photos/800/400?random=22',
+            'description': '주요 가상화폐의 가격 변동성이 확대되며 투자자들의 관심 집중...',
+          },
+        ],
+      },
+      {
+        'category': '연예',
+        'items': [
+          {
+            'id': 'entertainment1',
+            'title': '엔터테인먼트 기업 실적 호조',
+            'imageUrl': 'https://picsum.photos/800/400?random=23',
+            'description': 'K-콘텐츠의 글로벌 인기에 힘입어 주요 엔터테인먼트 기업들의 실적 개선...',
+          },
+        ],
+      },
+      {
+        'category': '스포츠',
+        'items': [
+          {
+            'id': 'sports1',
+            'title': '스포츠 구단 가치 상승세',
+            'imageUrl': 'https://picsum.photos/800/400?random=24',
+            'description': '프로스포츠 구단들의 기업 가치가 지속적으로 상승하며...',
+          },
+        ],
+      },
     ];
   }
 
   static List<Map<String, dynamic>> getRecommendations() {
     return [
       {
-        'category': '주목받는 주식',
+        'category': '국내 주목주',
         'items': [
           {
-            'id': 'hot1',
-            'title': '테슬라',
+            'id': 'domestic1',
+            'title': '삼성전자',
             'imageUrl': 'https://picsum.photos/800/400?random=17',
-            'description': '신규 모델 출시 예정 및 실적 개선 기대',
+            'description': '신규 반도체 라인 가동 예정',
             'trend': '상승',
-            'percentage': '+5.2%',
+            'percentage': '+3.2%',
             'recommendation': '매수 고려',
           },
           {
-            'id': 'hot2',
-            'title': '애플',
+            'id': 'domestic2',
+            'title': 'SK하이닉스',
             'imageUrl': 'https://picsum.photos/800/400?random=18',
-            'description': 'AI 관련 신규 사업 발표 예정',
+            'description': 'AI 반도체 수요 증가',
             'trend': '상승',
             'percentage': '+2.8%',
+            'recommendation': '매수 고려',
+          },
+          {
+            'id': 'domestic3',
+            'title': '현대차',
+            'imageUrl': 'https://picsum.photos/800/400?random=19',
+            'description': '전기차 신모델 출시 예정',
+            'trend': '상승',
+            'percentage': '+1.5%',
             'recommendation': '매수 고려',
           },
         ],
       },
       {
-        'category': '환율 기회',
+        'category': '해외 주목주',
         'items': [
           {
-            'id': 'currency1',
-            'title': '일본 엔화',
-            'imageUrl': 'https://picsum.photos/800/400?random=19',
-            'description': '엔화 약세 지속으로 인한 환전 유리',
-            'exchangeRate': '100엔 = 916.85원',
-            'trend': '하락',
-            'recommendation': '환전 고려',
+            'id': 'global1',
+            'title': '테슬라',
+            'imageUrl': 'https://picsum.photos/800/400?random=20',
+            'description': '신규 모델 출시 예정',
+            'trend': '상승',
+            'percentage': '+5.2%',
+            'recommendation': '매수 고려',
           },
           {
-            'id': 'currency2',
-            'title': '유로화',
-            'imageUrl': 'https://picsum.photos/800/400?random=20',
-            'description': '유로화 강세로 인한 환전 불리',
-            'exchangeRate': '1유로 = 1,450.30원',
+            'id': 'global2',
+            'title': '애플',
+            'imageUrl': 'https://picsum.photos/800/400?random=21',
+            'description': 'AI 관련 신규 사업 발표 예정',
             'trend': '상승',
-            'recommendation': '환전 대기',
+            'percentage': '+2.8%',
+            'recommendation': '매수 고려',
+          },
+          {
+            'id': 'global3',
+            'title': 'NVIDIA',
+            'imageUrl': 'https://picsum.photos/800/400?random=22',
+            'description': 'AI 칩 수요 급증',
+            'trend': '상승',
+            'percentage': '+4.5%',
+            'recommendation': '매수 고려',
           },
         ],
       },
     ];
+  }
+
+  static List<Map<String, dynamic>> getMoreAINews() {
+    return List.generate(20, (index) => {
+      'id': 'ai${index + 4}',
+      'title': 'AI 뉴스 제목 ${index + 4}',
+      'imageUrl': 'https://picsum.photos/800/400?random=${index + 20}',
+      'description': 'AI 뉴스 내용 ${index + 4}',
+    });
+  }
+
+  static List<Map<String, dynamic>> getMoreExchangeRates() {
+    final countries = [
+      '미국', '일본', '유럽', '중국', '영국', 
+      '호주', '캐나다', '스위스', '홍콩', '싱가포르'
+    ];
+    
+    return List.generate(10, (index) => {
+      'id': 'exchange${index + 5}',
+      'title': '${countries[index]}/KRW',
+      'imageUrl': 'https://picsum.photos/800/400?random=${index + 30}',
+      'description': '${(1000 + math.Random().nextInt(500)).toDouble()} (-${(math.Random().nextDouble() * 2).toStringAsFixed(2)}%)',
+    });
   }
 } 

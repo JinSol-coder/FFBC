@@ -26,9 +26,35 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       body: CustomScrollView(
         slivers: [
-          const SliverAppBar(
+          SliverAppBar(
             floating: true,
-            title: CustomSearchBar(),
+            title: Column(
+              children: [
+                Text(
+                  'TCW',
+                  style: TextStyle(
+                    color: Colors.blue,
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  '투자 CAN WIN',
+                  style: TextStyle(
+                    color: Colors.blue,
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            ),
+            centerTitle: true,
+            bottom: PreferredSize(
+              preferredSize: Size.fromHeight(56),
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: CustomSearchBar(),
+              ),
+            ),
           ),
           Consumer<HomeViewModel>(
             builder: (context, viewModel, child) {

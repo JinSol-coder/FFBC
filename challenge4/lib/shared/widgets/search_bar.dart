@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../features/search/viewmodel/search_viewmodel.dart';
+import '../../features/search/view/search_results_screen.dart';
 
 class CustomSearchBar extends StatelessWidget {
   const CustomSearchBar({super.key});
@@ -7,7 +10,10 @@ class CustomSearchBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        // TODO: 검색 화면으로 이동
+        showSearch(
+          context: context,
+          delegate: CustomSearchDelegate(),
+        );
       },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -28,5 +34,43 @@ class CustomSearchBar extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+class CustomSearchDelegate extends SearchDelegate {
+  @override
+  List<Widget> buildActions(BuildContext context) {
+    return [
+      IconButton(
+        icon: const Icon(Icons.clear),
+        onPressed: () {
+          query = '';
+        },
+      ),
+    ];
+  }
+
+  @override
+  Widget buildLeading(BuildContext context) {
+    return IconButton(
+      icon: const Icon(Icons.arrow_back),
+      onPressed: () {
+        close(context, null);
+      },
+    );
+  }
+
+  @override
+  Widget buildResults(BuildContext context) {
+    if (query.isEmpty) return const SizedBox();
+    
+    final viewModel = context.read<SearchViewModel>();
+    viewModel.search(query);
+    return const SearchResultsScreen();
+  }
+
+  @override
+  Widget buildSuggestions(BuildContext context) {
+    return const SizedBox();
   }
 } 
