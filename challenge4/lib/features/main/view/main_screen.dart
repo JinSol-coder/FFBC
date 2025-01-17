@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../home/view/home_screen.dart';
-import '../../search/view/search_screen.dart';
-import '../../weather/view/weather_screen.dart';
+import '../../news/view/news_screen.dart';
+import '../../recommend/view/recommend_screen.dart';
+import '../../my/view/my_screen.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -13,10 +14,11 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
 
-  final List<Widget> _screens = [
-    const HomeScreen(),
-    const WeatherScreen(),
-    const SearchScreen(),
+  final List<Widget> _screens = const [
+    HomeScreen(),
+    NewsScreen(),
+    RecommendScreen(),
+    MyScreen(),
   ];
 
   @override
@@ -39,12 +41,16 @@ class _MainScreenState extends State<MainScreen> {
             label: '홈',
           ),
           NavigationDestination(
-            icon: Icon(Icons.cloud),
-            label: '날씨',
+            icon: Icon(Icons.newspaper),
+            label: '뉴스',
           ),
           NavigationDestination(
-            icon: Icon(Icons.search),
-            label: '검색',
+            icon: Icon(Icons.trending_up),
+            label: '추천',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.person),
+            label: 'MY',
           ),
         ],
       ),

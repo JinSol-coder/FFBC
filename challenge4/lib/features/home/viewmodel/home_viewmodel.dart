@@ -1,46 +1,23 @@
-import 'dart:convert';
 import 'package:flutter/foundation.dart';
-import '../model/news_model.dart';
-import '../../../data/api/unsplash_api.dart';
+import '../model/content_model.dart';
+import '../../../data/datasources/dummy_data_source.dart';
 
 class HomeViewModel extends ChangeNotifier {
-  final UnsplashApi _api;
-  List<NewsModel> _news = [];
+  List<ContentCategory> _categories = [];
   bool _isLoading = false;
-  bool _hasMore = true;
-  int _currentPage = 1;
 
-  HomeViewModel({UnsplashApi? api}) : _api = api ?? UnsplashApi();
-
-  List<NewsModel> get news => _news;
+  List<ContentCategory> get categories => _categories;
   bool get isLoading => _isLoading;
-  bool get hasMore => _hasMore;
 
-  Future<void> fetchNews({bool refresh = false}) async {
-    if (_isLoading) return;
-    if (refresh) {
-      _currentPage = 1;
-      _news.clear();
-      _hasMore = true;
-    }
-    
-    if (!_hasMore) return;
-
+  Future<void> fetchContents() async {
     _isLoading = true;
     notifyListeners();
 
     try {
-      final response = await _api.getPhotos(page: _currentPage);
-      final newItems = response.map((item) => NewsModel.fromJson(item)).toList();
-      
-      if (newItems.isEmpty) {
-        _hasMore = false;
-      } else {
-        _news.addAll(newItems);
-        _currentPage++;
-      }
+      final data = DummyDataSource.getHomeContents();
+      _categories = data.map((json) => ContentCategory.fromJson(json)).toList();
     } catch (e) {
-      print('Error fetching news: $e');
+      print('Error fetching contents: $e');
     } finally {
       _isLoading = false;
       notifyListeners();
