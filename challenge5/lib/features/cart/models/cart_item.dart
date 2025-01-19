@@ -4,24 +4,24 @@ class CartItem {
   final MenuItem menu;
   final int quantity;
 
-  CartItem({
+  const CartItem({
     required this.menu,
     required this.quantity,
   });
 
-  double get totalPrice => menu.price * quantity;
+  int get totalPrice => menu.price * quantity;
+
+  factory CartItem.fromJson(Map<String, dynamic> json) {
+    return CartItem(
+      menu: MenuItem.fromJson(json['menu'] as Map<String, dynamic>),
+      quantity: json['quantity'] as int,
+    );
+  }
 
   Map<String, dynamic> toJson() {
     return {
       'menu': menu.toJson(),
       'quantity': quantity,
     };
-  }
-
-  factory CartItem.fromJson(Map<String, dynamic> json) {
-    return CartItem(
-      menu: MenuItem.fromJson(json['menu']),
-      quantity: json['quantity'],
-    );
   }
 } 

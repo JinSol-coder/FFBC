@@ -1,6 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:challenge5/features/home/viewmodels/home_viewmodel.dart';
 import 'package:challenge5/core/services/api_service.dart';
+import 'package:challenge5/features/home/models/category.dart';
+import 'package:challenge5/features/home/models/menu_item.dart';
+import 'package:challenge5/features/home/models/restaurant.dart';
+import 'package:challenge5/features/home/viewmodels/home_viewmodel.dart';
 
 void main() {
   late HomeViewModel viewModel;
@@ -8,24 +11,20 @@ void main() {
 
   setUp(() {
     apiService = ApiService();
-    viewModel = HomeViewModel(apiService: apiService);
+    viewModel = HomeViewModel();
   });
 
   group('HomeViewModel Tests', () {
     test('초기 상태 확인', () {
-      expect(viewModel.categories, isEmpty);
-      expect(viewModel.recommendedMenus, isEmpty);
-      expect(viewModel.isLoading, isFalse);
-      expect(viewModel.error, isNull);
-    });
-
-    test('loadInitialData 성공 시나리오', () async {
-      await viewModel.loadInitialData();
-      
       expect(viewModel.categories, isNotEmpty);
       expect(viewModel.recommendedMenus, isNotEmpty);
       expect(viewModel.isLoading, isFalse);
-      expect(viewModel.error, isNull);
+    });
+
+    test('카테고리 선택', () async {
+      final category = viewModel.categories.first;
+      await viewModel.selectCategory(category);
+      expect(viewModel.selectedCategoryId, equals(category.id));
     });
   });
 } 

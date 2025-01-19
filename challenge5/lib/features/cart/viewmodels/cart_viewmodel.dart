@@ -1,57 +1,49 @@
 import 'package:flutter/material.dart';
 import '../models/cart_item.dart';
-import '../../../core/services/storage_service.dart';
+import 'package:flutter/foundation.dart';
 
 class CartViewModel extends ChangeNotifier {
-  final StorageService _storageService;
-  List<CartItem> items = [];
-  bool isLoading = false;
+  final List<CartItem> _items = [];
+  List<CartItem> get items => List.unmodifiable(_items);
 
-  CartViewModel(this._storageService) {
-    loadCartItems();
+  int get totalPrice => _items.fold(0, (sum, item) => sum + item.totalPrice);
+
+  void addItem(CartItem item) {
+    final existingIndex = _items.indexWhere((i) => i.menu.id == item.menu.id);
+    if (existingIndex != -1) {
+      _items[existingIndex] = CartItem(
+        menu: _items[existingIndex].menu,
+        quantity: _items[existingIndex].quantity + item.quantity,
+      );
+    } else {
+      _items.add(item);
+    }
+    notifyListeners();
   }
 
-  Future<void> loadCartItems() async {
-    isLoading = true;
+  void removeItem(CartItem item) {
+    _items.remove(item);
     notifyListeners();
+  }
 
-    try {
-      final cartData = await _storageService.getCartItems();
-      items = cartData.map((item) => CartItem.fromJson(item)).toList();
-    } catch (e) {
-      debugPrint('장바구니 로드 실패: $e');
-    } finally {
-      isLoading = false;
+  void updateQuantity(CartItem item, int quantity) {
+    if (quantity <= 0) {
+      removeItem(item);
+      return;
+    }
+
+    final index = _items.indexOf(item);
+    if (index != -1) {
+      _items[index] = CartItem(
+        menu: item.menu,
+        quantity: quantity,
+      );
       notifyListeners();
     }
   }
 
-  Future<void> addToCart(CartItem item) async {
-    items.add(item);
-    await _saveCart();
+  void clear() {
+    _items.clear();
     notifyListeners();
   }
-
-  Future<void> removeFromCart(CartItem item) async {
-    items.remove(item);
-    await _saveCart();
-    notifyListeners();
-  }
-
-  Future<void> clearCart() async {
-    items.clear();
-    await _storageService.clearCart();
-    notifyListeners();
-  }
-
-  Future<void> _saveCart() async {
-    await _storageService.saveCartItems(
-      items.map((item) => item.toJson()).toList(),
-    );
-  }
-
-  double get totalPrice => items.fold(
-        0,
-        (sum, item) => sum + item.totalPrice,
-      );
 } 

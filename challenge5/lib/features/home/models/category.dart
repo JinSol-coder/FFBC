@@ -1,19 +1,16 @@
 class Category {
   final String id;
   final String name;
-  final String iconPath;
 
-  Category({
+  const Category({
     required this.id,
     required this.name,
-    required this.iconPath,
   });
 
   factory Category.fromJson(Map<String, dynamic> json) {
     return Category(
       id: json['id'] as String,
       name: json['name'] as String,
-      iconPath: json['iconPath'] as String,
     );
   }
 
@@ -21,7 +18,6 @@ class Category {
     return {
       'id': id,
       'name': name,
-      'iconPath': iconPath,
     };
   }
 } 

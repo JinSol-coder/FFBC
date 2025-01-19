@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';
-import '../../../core/constants/app_strings.dart';
+import '../../../core/constants/app_styles.dart';
 import '../../../shared/widgets/custom_button.dart';
-import '../../cart/models/cart_item.dart';
 import '../../cart/viewmodels/cart_viewmodel.dart';
 import '../../home/models/menu_item.dart';
 import '../viewmodels/menu_detail_viewmodel.dart';
@@ -19,26 +18,36 @@ class MenuDetailView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => MenuDetailViewModel(menu),
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text('메뉴 상세'),
-          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        ),
-        body: Column(
-          children: [
-            Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+      create: (_) => MenuDetailViewModel(menu: menu),
+      child: Consumer<CartViewModel>(
+        builder: (context, cartViewModel, child) {
+          return Scaffold(
+            appBar: AppBar(
+              backgroundColor: Colors.grey[50],
+              elevation: 0,
+              iconTheme: const IconThemeData(color: AppColors.primary),
+            ),
+            body: Consumer<MenuDetailViewModel>(
+              builder: (context, viewModel, child) {
+                return Column(
                   children: [
-                    Container(
+                    Image.network(
+                      menu.imageUrl,
                       height: 200,
                       width: double.infinity,
-                      color: AppColors.grey,
-                      child: const Center(
-                        child: Icon(Icons.restaurant_menu, size: 64),
-                      ),
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          height: 200,
+                          width: double.infinity,
+                          color: AppColors.grey.withOpacity(0.2),
+                          child: const Icon(
+                            Icons.restaurant,
+                            size: 64,
+                            color: AppColors.grey,
+                          ),
+                        );
+                      },
                     ),
                     Padding(
                       padding: const EdgeInsets.all(16),
@@ -47,87 +56,60 @@ class MenuDetailView extends StatelessWidget {
                         children: [
                           Text(
                             menu.name,
-                            style: const TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                            ),
+                            style: AppStyles.heading1,
                           ),
                           const SizedBox(height: 8),
                           Text(
                             menu.description,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              color: Colors.grey,
-                            ),
+                            style: AppStyles.body1,
                           ),
                           const SizedBox(height: 16),
                           Text(
-                            '${menu.price.toStringAsFixed(0)}원',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
+                            '${menu.price}원',
+                            style: AppStyles.heading2.copyWith(
                               color: AppColors.primary,
                             ),
                           ),
                           const SizedBox(height: 24),
-                          Consumer<MenuDetailViewModel>(
-                            builder: (context, viewModel, child) {
-                              return Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  IconButton(
-                                    onPressed: viewModel.decrementQuantity,
-                                    icon: const Icon(Icons.remove),
-                                  ),
-                                  const SizedBox(width: 16),
-                                  Text(
-                                    '${viewModel.quantity}',
-                                    style: const TextStyle(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 16),
-                                  IconButton(
-                                    onPressed: viewModel.incrementQuantity,
-                                    icon: const Icon(Icons.add),
-                                  ),
-                                ],
-                              );
-                            },
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              IconButton(
+                                icon: const Icon(Icons.remove),
+                                onPressed: viewModel.decrementQuantity,
+                              ),
+                              const SizedBox(width: 16),
+                              Text(
+                                '${viewModel.quantity}',
+                                style: AppStyles.heading2,
+                              ),
+                              const SizedBox(width: 16),
+                              IconButton(
+                                icon: const Icon(Icons.add),
+                                onPressed: viewModel.incrementQuantity,
+                              ),
+                            ],
                           ),
                         ],
                       ),
                     ),
+                    const Spacer(),
+                    Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: CustomButton(
+                        text: '${viewModel.totalPrice}원 담기',
+                        onPressed: () {
+                          cartViewModel.addItem(viewModel.toCartItem());
+                          Navigator.pop(context);
+                        },
+                      ),
+                    ),
                   ],
-                ),
-              ),
+                );
+              },
             ),
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Consumer<MenuDetailViewModel>(
-                builder: (context, viewModel, child) {
-                  return CustomButton(
-                    text: '${viewModel.totalPrice.toStringAsFixed(0)}원 담기',
-                    onPressed: () {
-                      final cartViewModel = context.read<CartViewModel>();
-                      cartViewModel.addToCart(
-                        CartItem(
-                          menu: menu,
-                          quantity: viewModel.quantity,
-                        ),
-                      );
-                      Navigator.pop(context);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('장바구니에 추가되었습니다.')),
-                      );
-                    },
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }

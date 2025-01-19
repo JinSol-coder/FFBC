@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import '../../home/models/menu_item.dart';
+import '../../cart/models/cart_item.dart';
 
 class MenuDetailViewModel extends ChangeNotifier {
   final MenuItem menu;
   int quantity = 1;
   
-  MenuDetailViewModel(this.menu);
+  MenuDetailViewModel({required this.menu});
 
   void incrementQuantity() {
     quantity++;
@@ -19,5 +20,12 @@ class MenuDetailViewModel extends ChangeNotifier {
     }
   }
 
-  double get totalPrice => menu.price * quantity;
+  int get totalPrice => menu.price * quantity;
+
+  CartItem toCartItem() {
+    return CartItem(
+      menu: menu,
+      quantity: quantity,
+    );
+  }
 } 
