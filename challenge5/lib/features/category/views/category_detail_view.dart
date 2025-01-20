@@ -1,19 +1,18 @@
 import 'package:flutter/material.dart';
-import '../../../core/constants/app_colors.dart';
-import '../../../core/constants/app_styles.dart';
+
 import '../../home/models/category.dart';
 import '../../home/models/restaurant.dart';
-import '../../home/views/widgets/restaurant_list.dart';
+import '../../home/views/widgets/restaurant_card.dart';
 
 class CategoryDetailView extends StatelessWidget {
   final Category category;
   final List<Restaurant> restaurants;
 
   const CategoryDetailView({
-    super.key,
+    Key? key,
     required this.category,
     required this.restaurants,
-  });
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -24,19 +23,24 @@ class CategoryDetailView extends StatelessWidget {
         title: Text(
           category.name,
           style: const TextStyle(
-            color: AppColors.primary,
+            color: Colors.deepOrange,
             fontSize: 20,
             fontWeight: FontWeight.bold,
           ),
         ),
-        iconTheme: const IconThemeData(color: AppColors.primary),
+        iconTheme: const IconThemeData(color: Colors.deepOrange),
       ),
-      body: RestaurantList(
-        restaurants: restaurants,
-        onRestaurantSelected: (restaurant) {
-          // TODO: 식당 상세 페이지로 이동
+      body: ListView.builder(
+        padding: const EdgeInsets.all(16),
+        itemCount: restaurants.length,
+        itemBuilder: (context, index) {
+          final restaurant = restaurants[index];
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 16),
+            child: RestaurantCard(restaurant: restaurant),
+          );
         },
       ),
     );
   }
-} 
+}

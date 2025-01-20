@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_styles.dart';
 import '../../../shared/widgets/custom_button.dart';
@@ -18,7 +19,11 @@ class MenuDetailView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => MenuDetailViewModel(menu: menu),
+      create: (_) => MenuDetailViewModel(
+        menu: menu,
+        restaurantId: menu.restaurantId,
+        restaurantName: menu.restaurantName,
+      ),
       child: Consumer<CartViewModel>(
         builder: (context, cartViewModel, child) {
           return Scaffold(
@@ -113,4 +118,4 @@ class MenuDetailView extends StatelessWidget {
       ),
     );
   }
-} 
+}

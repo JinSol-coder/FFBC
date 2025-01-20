@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../../core/constants/app_colors.dart';
+
 import '../../../../core/constants/app_styles.dart';
 import '../../models/restaurant.dart';
 
@@ -42,10 +42,9 @@ class RestaurantList extends StatelessWidget {
                           width: 100,
                           height: 100,
                           decoration: BoxDecoration(
-                            color: AppColors.grey,
                             borderRadius: BorderRadius.circular(8),
                             image: DecorationImage(
-                              image: NetworkImage(restaurant.imageUrl),
+                              image: AssetImage(restaurant.imageUrl),
                               fit: BoxFit.cover,
                             ),
                           ),
@@ -83,31 +82,16 @@ class RestaurantList extends StatelessWidget {
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    '리뷰 ${restaurant.reviewCount}',
-                                    style: AppStyles.body2,
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 4),
-                              Row(
-                                children: [
-                                  Text(
-                                    '최소주문 ${restaurant.minOrderAmount}원',
-                                    style: AppStyles.body2,
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Container(
-                                    width: 1,
-                                    height: 12,
-                                    color: Colors.grey[300],
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    '배달팁 ${restaurant.deliveryFee}원',
-                                    style: AppStyles.body2,
-                                  ),
+                                  if (restaurant.hasDiscount) ...[
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      '${restaurant.discountRate}% 할인',
+                                      style: AppStyles.body2.copyWith(
+                                        color: Colors.red,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
                                 ],
                               ),
                             ],
@@ -124,4 +108,4 @@ class RestaurantList extends StatelessWidget {
       },
     );
   }
-} 
+}

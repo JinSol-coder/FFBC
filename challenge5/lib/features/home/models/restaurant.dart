@@ -1,37 +1,37 @@
 class Restaurant {
   final String id;
   final String name;
-  final String description;
+  final String category;
   final String imageUrl;
-  final String categoryId;
   final double rating;
-  final int reviewCount;
-  final int minOrderAmount;
-  final int deliveryFee;
+  final String description;
+  final bool isHot;
+  final bool hasDiscount;
+  final int discountRate;
 
-  const Restaurant({
+  Restaurant({
     required this.id,
     required this.name,
-    required this.description,
+    required this.category,
     required this.imageUrl,
-    required this.categoryId,
     required this.rating,
-    required this.reviewCount,
-    required this.minOrderAmount,
-    required this.deliveryFee,
+    required this.description,
+    this.isHot = false,
+    this.hasDiscount = false,
+    this.discountRate = 0,
   });
 
   factory Restaurant.fromJson(Map<String, dynamic> json) {
     return Restaurant(
       id: json['id'] as String,
       name: json['name'] as String,
-      description: json['description'] as String,
+      category: json['category'] as String,
       imageUrl: json['imageUrl'] as String,
-      categoryId: json['categoryId'] as String,
       rating: (json['rating'] as num).toDouble(),
-      reviewCount: json['reviewCount'] as int,
-      minOrderAmount: json['minOrderAmount'] as int,
-      deliveryFee: json['deliveryFee'] as int,
+      description: json['description'] as String,
+      isHot: json['isHot'] as bool,
+      hasDiscount: json['hasDiscount'] as bool,
+      discountRate: json['discountRate'] as int,
     );
   }
 
@@ -39,13 +39,13 @@ class Restaurant {
     return {
       'id': id,
       'name': name,
-      'description': description,
+      'category': category,
       'imageUrl': imageUrl,
-      'categoryId': categoryId,
       'rating': rating,
-      'reviewCount': reviewCount,
-      'minOrderAmount': minOrderAmount,
-      'deliveryFee': deliveryFee,
+      'description': description,
+      'isHot': isHot,
+      'hasDiscount': hasDiscount,
+      'discountRate': discountRate,
     };
   }
-} 
+}

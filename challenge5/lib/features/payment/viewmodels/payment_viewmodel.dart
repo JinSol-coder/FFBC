@@ -1,39 +1,66 @@
 import 'package:flutter/material.dart';
-import '../../../core/services/storage_service.dart';
+
 import '../../cart/models/cart_item.dart';
+import '../../cart/services/cart_service.dart';
+import '../services/payment_service.dart';
 
 class PaymentViewModel extends ChangeNotifier {
-  final StorageService _storageService;
+  final PaymentService _paymentService;
+  final CartService _cartService;
   final List<CartItem> cartItems;
-  bool isLoading = false;
-  String? error;
-  String selectedMethod = '신용카드';
 
-  PaymentViewModel(this._storageService, this.cartItems);
+  bool _isLoading = false;
+  String _selectedMethod = 'card';
+  String? _error;
 
-  double get totalAmount => cartItems.fold(
+  PaymentViewModel(
+    this._paymentService,
+    this._cartService,
+    this.cartItems,
+  );
+
+  bool get isLoading => _isLoading;
+  String get selectedMethod => _selectedMethod;
+  String? get error => _error;
+
+  int get totalAmount => cartItems.fold(
         0,
-        (sum, item) => sum + item.totalPrice,
+        (sum, item) => sum + (item.price * item.quantity),
       );
 
-  Future<void> processPayment() async {
-    isLoading = true;
-    error = null;
+  void updatePaymentMethod(String method) {
+    _selectedMethod = method;
+    notifyListeners();
+  }
+
+  Future<bool> processPayment() async {
+    _isLoading = true;
+    _error = null;
     notifyListeners();
 
     try {
-      await Future.delayed(const Duration(seconds: 2));
-      await _storageService.clearCart();
+      final success = await _paymentService.processPayment(
+        items: cartItems,
+        paymentMethod: _selectedMethod,
+        totalAmount: totalAmount,
+      );
+
+      if (success) {
+        await _cartService.clearCart();
+        _isLoading = false;
+        notifyListeners();
+        return true;
+      } else {
+        _error = '결제 처리 중 오류가 발생했습니다.';
+        _isLoading = false;
+        notifyListeners();
+        return false;
+      }
     } catch (e) {
-      error = '결제 처리 중 오류가 발생했습니다.';
-    } finally {
-      isLoading = false;
+      _error = '결제 처리 중 오류가 발생했습니다.';
+      _isLoading = false;
       notifyListeners();
+      return false;
     }
   }
-
-  void updatePaymentMethod(String method) {
-    selectedMethod = method;
-    notifyListeners();
-  }
-} 
+}

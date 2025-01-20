@@ -1,49 +1,50 @@
 import 'package:flutter/material.dart';
+
 import '../models/cart_item.dart';
-import 'package:flutter/foundation.dart';
+import '../services/cart_service.dart';
 
 class CartViewModel extends ChangeNotifier {
-  final List<CartItem> _items = [];
-  List<CartItem> get items => List.unmodifiable(_items);
+  final CartService _cartService;
+  List<CartItem> _items = [];
+  bool _isLoading = false;
+
+  CartViewModel(this._cartService) {
+    loadCartItems();
+  }
+
+  List<CartItem> get items => _items;
+  bool get isLoading => _isLoading;
 
   int get totalPrice => _items.fold(0, (sum, item) => sum + item.totalPrice);
+  int get itemCount => _items.length;
 
-  void addItem(CartItem item) {
-    final existingIndex = _items.indexWhere((i) => i.menu.id == item.menu.id);
-    if (existingIndex != -1) {
-      _items[existingIndex] = CartItem(
-        menu: _items[existingIndex].menu,
-        quantity: _items[existingIndex].quantity + item.quantity,
-      );
-    } else {
-      _items.add(item);
-    }
+  Future<void> loadCartItems() async {
+    _isLoading = true;
+    notifyListeners();
+
+    _items = await _cartService.getCartItems();
+
+    _isLoading = false;
     notifyListeners();
   }
 
-  void removeItem(CartItem item) {
-    _items.remove(item);
-    notifyListeners();
+  Future<void> updateQuantity(String itemId, int quantity) async {
+    await _cartService.updateQuantity(itemId, quantity);
+    await loadCartItems();
   }
 
-  void updateQuantity(CartItem item, int quantity) {
-    if (quantity <= 0) {
-      removeItem(item);
-      return;
-    }
-
-    final index = _items.indexOf(item);
-    if (index != -1) {
-      _items[index] = CartItem(
-        menu: item.menu,
-        quantity: quantity,
-      );
-      notifyListeners();
-    }
+  Future<void> removeItem(String itemId) async {
+    await _cartService.removeItem(itemId);
+    await loadCartItems();
   }
 
-  void clear() {
-    _items.clear();
-    notifyListeners();
+  Future<void> clearCart() async {
+    await _cartService.clearCart();
+    await loadCartItems();
   }
-} 
+
+  Future<void> addItem(CartItem item) async {
+    await _cartService.addToCart(item);
+    await loadCartItems();
+  }
+}
