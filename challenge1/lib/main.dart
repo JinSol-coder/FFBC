@@ -57,16 +57,18 @@ class LoginPage extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(50),
-                    child: Image.asset(
-                      'assets/images/profile.png',
-                      width: 80,
-                      height: 80,
-                      fit: BoxFit.cover,
+                  const SizedBox(height: 32),
+                  // 인스타그램 로고
+                  const Text(
+                    'Instagram',
+                    style: TextStyle(
+                      fontSize: 40,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
                     ),
                   ),
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 48),
+                  // 구글 로그인 버튼
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
@@ -75,28 +77,27 @@ class LoginPage extends StatelessWidget {
                         await authService.signInWithGoogle();
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        foregroundColor: Colors.black87,
+                        backgroundColor: const Color(0xFF0064E0),
+                        foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(
                           vertical: 16,
                         ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
-                          side: BorderSide(
-                            color: Colors.grey.shade300,
-                          ),
                         ),
+                        elevation: 0,
                       ),
                       child: const Text(
                         'Google로 로그인',
                         style: TextStyle(
-                          fontSize: 16,
+                          fontSize: 15,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),
                   ),
                   const SizedBox(height: 16),
+                  // 구분선
                   Row(
                     children: [
                       Expanded(
@@ -122,6 +123,7 @@ class LoginPage extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 16),
+                  // 게스트 로그인 버튼
                   SizedBox(
                     width: double.infinity,
                     child: TextButton(
