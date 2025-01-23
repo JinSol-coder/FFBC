@@ -7,8 +7,10 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
 import 'firebase_options.dart';
+import 'screens/post_detail_screen.dart';
 import 'services/auth_service.dart';
 
 void main() async {
@@ -18,6 +20,9 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  // timeago 한국어 설정
+  timeago.setLocaleMessages('ko', timeago.KoMessages());
 
   // 필요한 Firebase 서비스만 초기화
   await Future.wait([
@@ -176,11 +181,6 @@ class LoginPage extends StatelessWidget {
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
 
-  List<String> get _posts => List.generate(
-        4,
-        (index) => 'assets/images/image${index + 1}.png',
-      );
-
   @override
   Widget build(BuildContext context) {
     // 현재 로그인한 사용자 정보 가져오기
@@ -238,7 +238,19 @@ class ProfilePage extends StatelessWidget {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
-                            _buildStatColumn('Posts', '4'), // 실제 게시물 수로 변경
+                            // StreamBuilder를 사용하여 실시간으로 게시물 수 가져오기
+                            StreamBuilder<QuerySnapshot>(
+                              stream: FirebaseFirestore.instance
+                                  .collection('posts')
+                                  .where('authorId', isEqualTo: user?.uid)
+                                  .snapshots(),
+                              builder: (context, snapshot) {
+                                final postCount = snapshot.hasData
+                                    ? snapshot.data!.docs.length.toString()
+                                    : '0';
+                                return _buildStatColumn('Posts', postCount);
+                              },
+                            ),
                             _buildStatColumn('Followers', '0'),
                             _buildStatColumn('Following', '0'),
                           ],
@@ -312,8 +324,7 @@ class ProfilePage extends StatelessWidget {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => PostDetailPage(
-                                    post: post,
+                                  builder: (context) => PostDetailScreen(
                                     postId: posts[index].id,
                                   ),
                                 ),
@@ -644,177 +655,6 @@ class _CreatePostPageState extends State<CreatePostPage> {
             ],
           ],
         ),
-      ),
-    );
-  }
-}
-
-class PostDetailPage extends StatelessWidget {
-  final Map<String, dynamic> post;
-  final String postId;
-
-  const PostDetailPage({
-    super.key,
-    required this.post,
-    required this.postId,
-  });
-
-  Future<void> _deletePost(BuildContext context) async {
-    try {
-      final user = FirebaseAuth.instance.currentUser;
-      if (user == null || user.uid != post['authorId']) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('삭제 권한이 없습니다')),
-        );
-        return;
-      }
-
-      // Firestore에서 게시물 삭제
-      await FirebaseFirestore.instance.collection('posts').doc(postId).delete();
-
-      // 연결된 이미지도 Storage에서 삭제
-      final mediaUrls = List<String>.from(post['mediaUrls'] ?? []);
-      for (final url in mediaUrls) {
-        try {
-          final ref = FirebaseStorage.instance.refFromURL(url);
-          await ref.delete();
-        } catch (e) {
-          print('이미지 삭제 실패: $e');
-        }
-      }
-
-      if (context.mounted) {
-        // 모든 화면을 pop하고 ProfilePage로 이동
-        Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(
-            builder: (context) => const ProfilePage(),
-          ),
-          (route) => false, // 모든 이전 화면 제거
-        );
-
-        // 삭제 완료 메시지 표시
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('게시물이 삭제되었습니다')),
-        );
-      }
-    } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('삭제 중 오류가 발생했습니다: $e')),
-        );
-      }
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final mediaUrls = List<String>.from(post['mediaUrls'] ?? []);
-
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('게시물'),
-        actions: [
-          PopupMenuButton<String>(
-            onSelected: (value) {
-              if (value == 'delete') {
-                showDialog(
-                  context: context,
-                  builder: (context) => AlertDialog(
-                    title: const Text('게시물 삭제'),
-                    content: const Text('이 게시물을 삭제하시겠습니까?'),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.pop(context),
-                        child: const Text('취소'),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                          _deletePost(context);
-                        },
-                        child: const Text(
-                          '삭제',
-                          style: TextStyle(color: Colors.red),
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              }
-            },
-            itemBuilder: (BuildContext context) => [
-              const PopupMenuItem(
-                value: 'delete',
-                child: Text('삭제하기'),
-              ),
-            ],
-          ),
-        ],
-      ),
-      body: Column(
-        children: [
-          if (mediaUrls.isNotEmpty)
-            GestureDetector(
-              onTap: () {
-                showDialog(
-                  context: context,
-                  builder: (context) => Dialog(
-                    child: Image.network(
-                      mediaUrls.first,
-                      fit: BoxFit.contain,
-                    ),
-                  ),
-                );
-              },
-              child: Image.network(
-                mediaUrls.first,
-                fit: BoxFit.cover,
-                height: 300,
-                width: double.infinity,
-              ),
-            ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.favorite_border),
-                  onPressed: () {
-                    // 좋아요 기능 구현 예정
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('좋아요 기능은 추후 구현 예정입니다')),
-                    );
-                  },
-                ),
-                IconButton(
-                  icon: const Icon(Icons.chat_bubble_outline),
-                  onPressed: () {
-                    // 댓글 기능 구현 예정
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('댓글 기능은 추후 구현 예정입니다')),
-                    );
-                  },
-                ),
-                IconButton(
-                  icon: const Icon(Icons.send),
-                  onPressed: () {
-                    // DM 기능 구현 예정
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('DM 기능은 추후 구현 예정입니다')),
-                    );
-                  },
-                ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Text(
-              post['content'] ?? '',
-              style: const TextStyle(fontSize: 16),
-            ),
-          ),
-        ],
       ),
     );
   }
