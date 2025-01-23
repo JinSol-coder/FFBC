@@ -1,0 +1,38 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // 인증된 사용자인지 확인하는 함수
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // 파일 크기와 형식 검증 함수
+    function isValidImage() {
+      return request.resource.size < 10 * 1024 * 1024 && // 10MB 제한
+        request.resource.contentType.matches('image/.*');
+    }
+
+    function isValidVideo() {
+      return request.resource.size < 50 * 1024 * 1024 && // 50MB 제한
+        request.resource.contentType.matches('video/.*');
+    }
+
+    // 프로필 이미지 규칙
+    match /profiles/{userId}/{fileName} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && 
+        request.auth.uid == userId && 
+        isValidImage();
+    }
+
+    // 게시글 미디어 파일 규칙
+    match /posts/{userId}/{postId}/{fileName} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && 
+        request.auth.uid == userId && 
+        (isValidImage() || isValidVideo());
+      allow delete: if isAuthenticated() && 
+        request.auth.uid == userId;
+    }
+  }
+} 

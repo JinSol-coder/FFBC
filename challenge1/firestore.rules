@@ -1,0 +1,47 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 인증된 사용자인지 확인하는 함수
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // 본인 데이터인지 확인하는 함수
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // users 컬렉션 규칙
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && request.auth.uid == userId;
+      allow update, delete: if isOwner(userId);
+    }
+
+    // posts 컬렉션 규칙
+    match /posts/{postId} {
+      // 게시글 읽기는 인증된 사용자만
+      allow read: if isAuthenticated();
+      // 게시글 작성은 인증된 사용자만
+      allow create: if isAuthenticated();
+      // 수정/삭제는 작성자만
+      allow update, delete: if isAuthenticated() && 
+        request.auth.uid == resource.data.authorId;
+
+      // likes 서브컬렉션 규칙
+      match /likes/{likeId} {
+        allow read: if isAuthenticated();
+        allow create, delete: if isAuthenticated() && 
+          request.auth.uid == likeId;
+      }
+
+      // comments 서브컬렉션 규칙
+      match /comments/{commentId} {
+        allow read: if isAuthenticated();
+        allow create: if isAuthenticated();
+        allow update, delete: if isAuthenticated() && 
+          request.auth.uid == resource.data.authorId;
+      }
+    }
+  }
+} 
