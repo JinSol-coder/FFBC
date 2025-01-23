@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -401,7 +400,7 @@ class CreatePostPage extends StatefulWidget {
 
 class _CreatePostPageState extends State<CreatePostPage> {
   final TextEditingController _contentController = TextEditingController();
-  List<XFile> _selectedImages = [];
+  final List<XFile> _selectedImages = [];
   bool _isLoading = false;
 
   @override
@@ -410,43 +409,8 @@ class _CreatePostPageState extends State<CreatePostPage> {
     super.dispose();
   }
 
-  Future<void> _pickImagesFromFiles() async {
-    try {
-      // 저장소 권한 요청
-      var status = await Permission.storage.request();
-      if (!status.isGranted) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('파일 접근 권한이 필요합니다')),
-          );
-        }
-        return;
-      }
-
-      FilePickerResult? result = await FilePicker.platform.pickFiles(
-        type: FileType.image,
-        allowMultiple: true,
-      );
-
-      if (result != null && result.files.isNotEmpty) {
-        setState(() {
-          _selectedImages.addAll(
-            result.files.map((file) => XFile(file.path!)).toList(),
-          );
-        });
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('파일 선택 중 오류가 발생했습니다: $e')),
-        );
-      }
-    }
-  }
-
   Future<void> _takePhoto() async {
     try {
-      // 카메라 권한 요청
       var status = await Permission.camera.request();
       if (!status.isGranted) {
         if (mounted) {
@@ -460,10 +424,10 @@ class _CreatePostPageState extends State<CreatePostPage> {
       final ImagePicker picker = ImagePicker();
       final XFile? photo = await picker.pickImage(
         source: ImageSource.camera,
-        imageQuality: 70, // 이미지 품질 설정 (0-100)
+        imageQuality: 70,
       );
 
-      if (photo != null) {
+      if (photo != null && mounted) {
         setState(() {
           _selectedImages.add(photo);
         });
@@ -479,7 +443,6 @@ class _CreatePostPageState extends State<CreatePostPage> {
 
   Future<void> _pickImages() async {
     try {
-      // 갤러리 권한 요청
       var status = await Permission.photos.request();
       if (!status.isGranted) {
         if (mounted) {
@@ -492,10 +455,10 @@ class _CreatePostPageState extends State<CreatePostPage> {
 
       final ImagePicker picker = ImagePicker();
       final List<XFile> images = await picker.pickMultiImage(
-        imageQuality: 70, // 이미지 품질 설정 (0-100)
+        imageQuality: 70,
       );
 
-      if (images.isNotEmpty) {
+      if (images.isNotEmpty && mounted) {
         setState(() {
           _selectedImages.addAll(images);
         });
@@ -582,14 +545,6 @@ class _CreatePostPageState extends State<CreatePostPage> {
         return SafeArea(
           child: Wrap(
             children: <Widget>[
-              ListTile(
-                leading: const Icon(Icons.folder),
-                title: const Text('파일 시스템에서 선택'),
-                onTap: () {
-                  Navigator.pop(context);
-                  _pickImagesFromFiles();
-                },
-              ),
               ListTile(
                 leading: const Icon(Icons.photo_library),
                 title: const Text('갤러리에서 선택'),

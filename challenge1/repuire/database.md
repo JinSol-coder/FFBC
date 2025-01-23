@@ -29,6 +29,12 @@
 - content: 댓글 내용
 - createdAt: 작성 시간
 - updatedAt: 수정 시간
+- authorProfile: {
+  displayName: 작성자 표시 이름
+  photoURL: 프로필 이미지 주소
+  email: 이메일 주소
+  }
+- mediaUrls: 댓글 첨부 미디어 파일 주소 목록
 
 # Firebase Storage 구조
 
@@ -44,6 +50,12 @@
 
 - Path: `/posts/{userId}/{postId}/{filename}`
 - Size Limit: Images 10MB, Videos 50MB
+- Allowed Formats: jpg, jpeg, png, mp4, mov
+
+### Comment Media
+
+- Path: `/comments/{userId}/{commentId}/{filename}`
+- Size Limit: Images 5MB, Videos 20MB
 - Allowed Formats: jpg, jpeg, png, mp4, mov
 
 ## Data Management Guidelines
@@ -64,6 +76,8 @@
    - Generate UUID for filenames to prevent duplicates
    - Regular cleanup of unused files
    - Auto-delete temporary files after 24 hours
+   - 댓글 미디어 파일은 댓글 삭제 시 자동 삭제
+   - 댓글 작성자 프로필 정보 변경 시 연관 댓글 정보 자동 업데이트
 
 ## Additional Rules
 
@@ -123,6 +137,9 @@
   - [x] 댓글 작성
   - [x] 댓글 수정/삭제
   - [x] 댓글 목록 조회
+  - [ ] 댓글 미디어 파일 업로드
+  - [ ] 댓글 작성자 프로필 정보 실시간 동기화
+  - [ ] 댓글 알림 기능
 
 ## 5. 보안 및 규칙 설정
 
