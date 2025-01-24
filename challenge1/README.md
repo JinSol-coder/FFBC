@@ -21,10 +21,11 @@ Flutter와 Firebase를 활용한 인스타그램 프로필 화면 클론 프로�
 
 ## 스크린샷
 
+인스타 로그인 구현 및 ui 클론
 ![image](https://github.com/user-attachments/assets/9ee69372-ff75-4a50-8b8c-719de82032c1)![image](https://github.com/user-attachments/assets/42e37caa-756b-40ca-948b-67aca696cdf1)![image](https://github.com/user-attachments/assets/69b08517-cdd6-4622-8369-e4f2ffad593b)
 
-
-
+인스타 댓글 구현
+![image](https://github.com/user-attachments/assets/64a3ebd5-91b6-4677-8322-85a3114f930a)
 
 ## 실행 방법
 
