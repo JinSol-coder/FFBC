@@ -16,4 +16,4 @@ For help getting started with Flutter development, view the
 samples, guidance on mobile development, and a full API reference.
 
 
-git 오류 해결해야해 끌끌
+git 오류 해결해야해 
