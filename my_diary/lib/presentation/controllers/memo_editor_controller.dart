@@ -4,6 +4,8 @@ import 'package:image_picker/image_picker.dart';
 import '../../domain/models/memo.dart';
 import '../../domain/repositories/memo_repository.dart';
 import '../controllers/memo_controller.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'dart:io';
 
 class MemoEditorController extends GetxController {
   final MemoRepository _repository;
@@ -32,8 +34,18 @@ class MemoEditorController extends GetxController {
     final picker = ImagePicker();
     final image = await picker.pickImage(source: ImageSource.gallery);
     if (image != null) {
-      // TODO: 이미지 업로드 및 URL 저장 구현
-      mediaFiles.add(image.path);
+      try {
+        // Firebase Storage에 이미지 업로드
+        final storageRef = FirebaseStorage.instance.ref();
+        final imageRef = storageRef.child('memos/${DateTime.now().millisecondsSinceEpoch}_${image.name}');
+        await imageRef.putFile(File(image.path));
+        final imageUrl = await imageRef.getDownloadURL();
+        
+        // 로컬 상태에 이미지 URL 추가
+        mediaFiles.add(imageUrl);
+      } catch (e) {
+        Get.snackbar('오류', '이미지 업로드에 실패했습니다.');
+      }
     }
   }
 
@@ -44,6 +56,10 @@ class MemoEditorController extends GetxController {
       // TODO: 비디오 업로드 및 URL 저장 구현
       mediaFiles.add(video.path);
     }
+  }
+
+  void removeMedia(int index) {
+    mediaFiles.removeAt(index);
   }
 
   Future<void> saveMemo() async {
@@ -58,6 +74,7 @@ class MemoEditorController extends GetxController {
         title: title.value,
         content: content.value,
         createdAt: DateTime.now(),
+        imageUrls: mediaFiles.toList(),  // 이미지 URL 리스트 추가
       );
       
       await _repository.createMemo(memo);

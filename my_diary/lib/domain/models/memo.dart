@@ -4,6 +4,7 @@ class Memo {
   final String content;
   final DateTime createdAt;
   final DateTime? updatedAt;
+  final List<String> imageUrls;
 
   Memo({
     required this.id,
@@ -11,6 +12,7 @@ class Memo {
     required this.content,
     required this.createdAt,
     this.updatedAt,
+    this.imageUrls = const [],
   });
 
   factory Memo.fromJson(Map<String, dynamic> json) {
@@ -22,6 +24,7 @@ class Memo {
       updatedAt: json['updatedAt'] != null 
           ? DateTime.parse(json['updatedAt']) 
           : null,
+      imageUrls: List<String>.from(json['imageUrls'] ?? []),
     );
   }
 
@@ -32,6 +35,7 @@ class Memo {
       'content': content,
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt?.toIso8601String(),
+      'imageUrls': imageUrls,
     };
   }
 } 

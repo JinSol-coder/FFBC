@@ -16,7 +16,10 @@ class MemoDetailPage extends GetView<MemoController> {
           IconButton(
             icon: const Icon(Icons.edit),
             onPressed: () {
-              Get.toNamed('/memo/$memoId/edit');
+              print('Edit button pressed. MemoId: $memoId');
+              final route = '/memo/$memoId/edit';
+              print('Navigating to route: $route');
+              Get.toNamed(route);
             },
           ),
           IconButton(
@@ -51,6 +54,26 @@ class MemoDetailPage extends GetView<MemoController> {
                 ),
                 const SizedBox(height: 16),
                 Text(memo.content),
+                if (memo.imageUrls.isNotEmpty) ...[
+                  const SizedBox(height: 16),
+                  GridView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3,
+                      mainAxisSpacing: 8,
+                      crossAxisSpacing: 8,
+                    ),
+                    itemCount: memo.imageUrls.length,
+                    itemBuilder: (context, index) => ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Image.network(
+                        memo.imageUrls[index],
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                ],
               ],
             ),
           );

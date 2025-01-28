@@ -26,16 +26,76 @@ class HomePage extends GetView<MemoController> {
         }
         return ListView.builder(
           itemCount: controller.memos.length,
+          padding: const EdgeInsets.all(16),
           itemBuilder: (context, index) {
             final memo = controller.memos[index];
-            return ListTile(
-              title: Text(memo.title),
-              subtitle: Text(
-                memo.content,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
+            return Card(
+              margin: const EdgeInsets.only(bottom: 16),
+              child: InkWell(
+                onTap: () => Get.toNamed('/memo/${memo.id}'),
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        memo.title,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        memo.content,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      if (memo.imageUrls.isNotEmpty) ...[
+                        const SizedBox(height: 8),
+                        SizedBox(
+                          height: 100,
+                          child: ListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            itemCount: memo.imageUrls.length,
+                            itemBuilder: (context, imageIndex) {
+                              return Padding(
+                                padding: EdgeInsets.only(
+                                  right: imageIndex != memo.imageUrls.length - 1 ? 8 : 0,
+                                ),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: Image.network(
+                                    memo.imageUrls[imageIndex],
+                                    width: 100,
+                                    height: 100,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return Container(
+                                        width: 100,
+                                        height: 100,
+                                        color: Colors.grey[200],
+                                        child: const Icon(
+                                          Icons.error_outline,
+                                          color: Colors.grey,
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
               ),
-              onTap: () => Get.toNamed('/memo/${memo.id}'),
             );
           },
         );

@@ -121,17 +121,40 @@ class MemoEditorPage extends GetView<MemoEditorController> {
     return Obx(() => Wrap(
       spacing: 8,
       runSpacing: 8,
-      children: controller.mediaFiles.map((path) => Container(
-        width: 100,
-        height: 100,
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey),
-          image: DecorationImage(
-            image: FileImage(File(path)),
-            fit: BoxFit.cover,
-          ),
-        ),
-      )).toList(),
+      children: controller.mediaFiles.asMap().entries.map((entry) {
+        final index = entry.key;
+        final path = entry.value;
+        return Stack(
+          children: [
+            Container(
+              width: 100,
+              height: 100,
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey),
+                image: DecorationImage(
+                  image: NetworkImage(path),  // FileImage 대신 NetworkImage 사용
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+            Positioned(
+              right: -12,
+              top: -12,
+              child: IconButton(
+                icon: Container(
+                  padding: const EdgeInsets.all(2),
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.close, size: 20, color: Colors.red),
+                ),
+                onPressed: () => controller.removeMedia(index),
+              ),
+            ),
+          ],
+        );
+      }).toList(),
     ));
   }
 } 

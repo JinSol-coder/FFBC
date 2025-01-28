@@ -38,6 +38,8 @@ class AppPages {
       page: () => MemoEditPage(),
       binding: MemoEditorBinding(),
       middlewares: [AuthMiddleware()],
+      transition: Transition.rightToLeft,
+      transitionDuration: const Duration(milliseconds: 300),
     ),
     // ... 다른 라우트들
   ];
